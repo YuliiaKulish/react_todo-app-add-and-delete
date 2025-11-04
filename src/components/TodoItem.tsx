@@ -1,18 +1,17 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
+import classNames from 'classnames';
 import { FC } from 'react';
 import { Todo } from '../types/Todo';
-import classNames from 'classnames';
 
 type Props = {
   todo: Todo;
   isLoading: boolean;
-  onDelete: (todoId: Todo['id']) => void;
+  onDelete?: (todoId: Todo['id']) => void;
 };
 
 export const TodoItem: FC<Props> = ({ todo, isLoading, onDelete }) => {
   return (
     <div
-      key={todo.id}
       data-cy="Todo"
       className={classNames('todo', { completed: todo.completed })}
     >
@@ -33,7 +32,7 @@ export const TodoItem: FC<Props> = ({ todo, isLoading, onDelete }) => {
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => onDelete(todo.id)}
+        onClick={() => onDelete?.(todo.id)}
       >
         ×
       </button>
@@ -49,6 +48,8 @@ export const TodoItem: FC<Props> = ({ todo, isLoading, onDelete }) => {
                 />
               </form> */}
 
+      {/* overlay will cover the todo while it is being deleted or updated */}
+      {/* 'is-active' class puts this modal on top of the todo */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', { 'is-active': isLoading })}
