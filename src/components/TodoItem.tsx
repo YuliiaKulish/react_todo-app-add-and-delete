@@ -37,19 +37,16 @@ export const TodoItem: FC<Props> = ({ todo, isLoading, onDelete }) => {
         ×
       </button>
 
-      {/* This form is shown instead of the title and remove button */}
       {/* <form>
-                <input
-                  data-cy="TodoTitleField"
-                  type="text"
-                  className="todo__title-field"
-                  placeholder="Empty todo will be deleted"
-                  value="Todo is being edited now"
-                />
-              </form> */}
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value="Todo is being edited now"
+            />
+          </form> */}
 
-      {/* overlay will cover the todo while it is being deleted or updated */}
-      {/* 'is-active' class puts this modal on top of the todo */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', { 'is-active': isLoading })}

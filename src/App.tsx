@@ -48,9 +48,17 @@ export const App: FC = () => {
   }, [errorMessage]);
 
   useEffect(() => {
-    getTodos()
-      .then(setTodos)
-      .catch(() => setErrorMessage('Unable to load todos'));
+    const fetchTodos = async () => {
+      try {
+        const fetchedTodos = await getTodos();
+
+        setTodos(fetchedTodos);
+      } catch {
+        setErrorMessage('Unable to load todos');
+      }
+    };
+
+    fetchTodos();
   }, []);
 
   const addLoadingId = (todoId: Todo['id']) => {
@@ -64,28 +72,26 @@ export const App: FC = () => {
   const getIsTodoLoading = (todoId: Todo['id']) =>
     loadingTodoIds.includes(todoId);
 
-  const handleDeleteTodo = (todoId: Todo['id']) => {
+  const handleDeleteTodo = async (todoId: Todo['id']) => {
     addLoadingId(todoId);
     setErrorMessage('');
 
-    deleteTodo(todoId)
-      .then(() => {
-        setTodos(currentTodos =>
-          currentTodos.filter(todo => todo.id !== todoId),
-        );
-      })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
-      .finally(() => {
-        removeLoadingId(todoId);
-        todoTitleInputRef.current?.focus();
-      });
+    try {
+      await deleteTodo(todoId);
+      setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
+    } catch {
+      setErrorMessage('Unable to delete a todo');
+    } finally {
+      removeLoadingId(todoId);
+      todoTitleInputRef.current?.focus();
+    }
   };
 
   const handleDeleteAllCompletedTodo = () => {
     completedTodos.forEach(todo => handleDeleteTodo(todo.id));
   };
 
-  const handleAddTodo = (newTitle: string, reset: () => void) => {
+  const handleAddTodo = async (newTitle: string, reset: () => void) => {
     if (!todoTitleInputRef.current) {
       return;
     }
@@ -96,29 +102,21 @@ export const App: FC = () => {
       title: newTitle,
     };
 
-    setTempTodo({
-      id: 0,
-      ...newTodo,
-    });
-
+    setTempTodo({ id: 0, ...newTodo });
     todoTitleInputRef.current.disabled = true;
 
-    addTodo(newTodo)
-      .then(addedTodo => {
-        setTodos(currentTodos => [...currentTodos, addedTodo]);
-        reset();
-      })
-      .catch(() => setErrorMessage('Unable to add a todo'))
-      .finally(() => {
-        setTempTodo(null);
+    try {
+      const addedTodo = await addTodo(newTodo);
 
-        if (!todoTitleInputRef.current) {
-          return;
-        }
-
-        todoTitleInputRef.current.disabled = false;
-        todoTitleInputRef.current.focus();
-      });
+      setTodos(currentTodos => [...currentTodos, addedTodo]);
+      reset();
+    } catch {
+      setErrorMessage('Unable to add a todo');
+    } finally {
+      setTempTodo(null);
+      todoTitleInputRef.current.disabled = false;
+      todoTitleInputRef.current.focus();
+    }
   };
 
   if (!USER_ID) {
